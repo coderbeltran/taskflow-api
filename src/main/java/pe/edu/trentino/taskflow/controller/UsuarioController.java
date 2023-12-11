@@ -3,8 +3,11 @@ package pe.edu.trentino.taskflow.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.trentino.taskflow.exception.BadRequestException;
 import pe.edu.trentino.taskflow.model.Tarea;
 import pe.edu.trentino.taskflow.model.Usuario;
 import pe.edu.trentino.taskflow.repository.TareaRepository;
@@ -37,7 +40,12 @@ public class UsuarioController {
         return ResponseEntity.ok().body(usuario);
     }
     @PostMapping()
-    public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario){
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Usuario> createUser(@RequestBody @Validated Usuario usuario){
+        boolean exitEmail=usuarioRepository.existsByEmail(usuario.getEmail());
+        if(exitEmail){
+            throw new  BadRequestException("El correo ya existe");
+        }
         usuario.setFechaCrea(LocalDateTime.now());
         usuario.setFechaCrea(LocalDateTime.now());
         usuarioRepository.save(usuario);
@@ -45,10 +53,15 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> updateUser(@PathVariable Integer id, @RequestBody Usuario tareaForm){
+    public ResponseEntity<Usuario> updateUser(@PathVariable Integer id, @RequestBody @Validated Usuario tareaForm){
+
         Usuario usuarioDB=usuarioRepository.findById(id).orElse(null);
         if(usuarioDB==null){
             return ResponseEntity.notFound().build();
+        }
+        boolean existsEmail=usuarioRepository.existsByEmailAndIdNot(tareaForm.getEmail(), id );
+        if(existsEmail){
+            throw new  BadRequestException("El correo ya existe");
         }
         usuarioDB.setNombre(tareaForm.getNombre());
         usuarioDB.setEmail(tareaForm.getEmail());

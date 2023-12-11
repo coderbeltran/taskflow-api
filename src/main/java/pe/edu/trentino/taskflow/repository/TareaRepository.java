@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface TareaRepository extends JpaRepository<Tarea, Integer> {
     public boolean existsById(Integer id);
+
 }

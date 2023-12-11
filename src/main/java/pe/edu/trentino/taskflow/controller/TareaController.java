@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.trentino.taskflow.model.Tarea;
 import pe.edu.trentino.taskflow.model.Usuario;
@@ -38,7 +39,7 @@ public class TareaController {
        return ResponseEntity.ok().body(tarea);
     }
     @PostMapping()
-    public ResponseEntity<Tarea> createTaskflow(@RequestBody Tarea tarea){
+    public ResponseEntity<Tarea> createTaskflow(@RequestBody  @Validated Tarea tarea){
         tarea.setFechaCrea(LocalDateTime.now());
         tarea.setEstado(Tarea.Estado.CREADO);
        tareaRepository.save(tarea);
@@ -46,7 +47,7 @@ public class TareaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tarea> updateTaskflow(@PathVariable Integer id, @RequestBody Tarea tareaForm){
+    public ResponseEntity<Tarea> updateTaskflow(@PathVariable Integer id, @RequestBody @Validated Tarea tareaForm){
         Tarea tareaDB=tareaRepository.findById(id).orElse(null);
         if(tareaDB==null){
             return ResponseEntity.notFound().build();
